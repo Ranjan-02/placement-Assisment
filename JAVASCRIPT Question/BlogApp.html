@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog Web App</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        text-align: center;
+        margin-top: 0;
+      }
+
+      #blogs {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .blog-card {
+        width: 300px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin: 10px;
+        padding: 20px;
+      }
+
+      .blog-card h3 {
+        color: #333;
+        margin-top: 0;
+      }
+
+      .blog-card p {
+        margin-bottom: 10px;
+      }
+
+      form {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Blog Web App</h1>
+      <form id="addBlogForm">
+        <input
+          type="text"
+          id="blogTitle"
+          placeholder="Enter blog title"
+          required
+        />
+        <textarea
+          id="blogContent"
+          placeholder="Enter blog content"
+          required
+        ></textarea>
+        <button type="submit">Add Blog</button>
+      </form>
+      <div id="blogs"></div>
+    </div>
+
+    <script>
+      // Fetch data from API and display existing blogs
+      fetch("https://jsonplaceholder.typicode.com/posts")
+        .then((response) => response.json())
+        .then((data) => displayBlogs(data));
+
+      // Display blogs on the UI
+      function displayBlogs(blogs) {
+        const blogsContainer = document.getElementById("blogs");
+
+        blogs.forEach((blog) => {
+          const blogCard = document.createElement("div");
+          blogCard.classList.add("blog-card");
+          blogCard.setAttribute("data-id", blog.id);
+          blogCard.innerHTML = `
+        <h3>${blog.title}</h3>
+        <p>${blog.body}</p>
+        <button onclick="deleteBlog(${blog.id})">Delete</button>
+      `;
+          blogsContainer.appendChild(blogCard);
+        });
+      }
+
+      // Add new blog
+      document
+        .getElementById("addBlogForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const title = document.getElementById("blogTitle").value;
+          const content = document.getElementById("blogContent").value;
+
+          const newBlog = {
+            title: title,
+            body: content,
+            userId: 1,
+          };
+
+          fetch("https://jsonplaceholder.typicode.com/posts", {
+            method: "POST",
+            body: JSON.stringify(newBlog),
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+            },
+          })
+            .then((response) => response.json())
+            .then((blog) => {
+              const blogCard = document.createElement("div");
+              blogCard.classList.add("blog-card");
+              blogCard.setAttribute("data-id", blog.id);
+              blogCard.innerHTML = `
+      <h3>${blog.title}</h3>
+      <p>${blog.body}</p>
+      <button onclick="deleteBlog(${blog.id})">Delete</button>
+    `;
+              const blogsContainer = document.getElementById("blogs");
+              blogsContainer.insertBefore(blogCard, blogsContainer.firstChild); // Insert the new blog card at the beginning of the container
+
+              document.getElementById("blogTitle").value = "";
+              document.getElementById("blogContent").value = "";
+
+              window.scrollTo(0, 0); // Scroll to the top of the page
+            });
+        });
+
+      // Delete blog
+      function deleteBlog(blogId) {
+        fetch(`https://jsonplaceholder.typicode.com/posts/${blogId}`, {
+          method: "DELETE",
+        }).then(() => {
+          const blogCard = document.querySelector(`div[data-id="${blogId}"]`);
+          blogCard.remove();
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+button {
+  padding: 1.4rem;
+  margin: 10px 0;
+  font-size: 20px;
+}
+.body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  text-align: center;
+  padding: 1rem;
+}
